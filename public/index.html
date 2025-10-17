@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            border: 3px dashed #cbd5e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f7fafc;
+        }
+
+        .file-upload-label:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .file-upload-label.has-file {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .file-info {
+            text-align: center;
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .status.info {
+            background: #bee3f8;
+            color: #2c5282;
+            border-left: 4px solid #3182ce;
+        }
+
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .results {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .results h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .result-section {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-section h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .result-content {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .download-btn {
+            background: #48bb78;
+            margin-top: 15px;
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 5px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .info-box {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .info-box strong {
+            color: #2d3748;
+        }
+
+        .step-indicator {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #edf2f7;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .step-indicator.active {
+            display: block;
+        }
+
+        .step-list {
+            margin-top: 10px;
+        }
+
+        .step-item {
+            display: none;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            transition: all 0.5s ease;
+            transform: translateX(-20px);
+            opacity: 0;
+        }
+
+        .step-item.show {
+            display: flex;
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .step-item.completed {
+            background: #c6f6d5;
+            border-left: 4px solid #38a169;
+            opacity: 0.8;
+        }
+
+        .step-item.active {
+            background: #bee3f8;
+            border-left: 4px solid #3182ce;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        }
+
+        .step-icon {
+            margin-right: 12px;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+        }
+
+        .step-item.active .step-icon {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .step-status {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-left: 8px;
+        }
+
+        .current-step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .current-step.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AI Video Processor</h1>
+            <p>Extract transcription, objects, sentiment & QA pairs using OpenAI APIs</p>
+        </div>
+
+        <div class="card">
+            <div class="info-box">
+                <strong>How it works:</strong> Upload your MP4 video, enter your OpenAI API key, and click process. 
+                The system will extract audio, transcribe it, detect objects in frames, analyze sentiment, and generate Q&A pairs.
+                <br><br>
+                <strong>💡 Demo Mode (FREE):</strong> Enter "demo" as the API key to test the interface without using credits!
+            </div>
+
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="apiKey">OpenAI API Key</label>
+                    <input 
+                        type="password" 
+                        id="apiKey" 
+                        name="apiKey" 
+                        placeholder='sk-proj-... or "demo" for free testing' 
+                        required
+                    >
+                    <small style="color: #718096; font-size: 0.85rem; display: block; margin-top: 5px;">
+                        💡 Enter <strong>"demo"</strong> to test without API costs, or your real API key for actual processing.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Video File (MP4)</label>
+                    <div class="file-upload">
+                        <input 
+                            type="file" 
+                            id="videoFile" 
+                            name="video" 
+                            accept="video/mp4" 
+                            required
+                        >
+                        <label for="videoFile" class="file-upload-label" id="fileLabel">
+                            <div class="file-info">
+                                <div class="file-icon">📁</div>
+                                <div>Click to select MP4 video</div>
+                                <small style="color: #718096; margin-top: 5px;">or drag and drop here</small>
+                            </div>
+                        </label>
+                    </div>
+                    <div id="fileName" style="margin-top: 10px; color: #4a5568; font-size: 0.9rem;"></div>
+                </div>
+
+                <button type="submit" class="btn" id="processBtn">
+                    🚀 Process Video
+                </button>
+            </form>
+
+            <div class="progress" id="progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="step-indicator" id="stepIndicator">
+                <div class="current-step" id="currentStep">
+                    <span id="currentStepText">Starting processing...</span>
+                </div>
+                <div class="step-list" id="stepList">
+                    <!-- Steps will be added dynamically -->
+                </div>
+            </div>
+
+            <div class="status" id="status"></div>
+
+            <div class="results" id="results">
+                <h3>📊 Analysis Results</h3>
+                
+                <div class="result-section">
+                    <h4>📝 Transcript</h4>
+                    <div class="result-content" id="transcript"></div>
+                </div>
+
+                <div class="result-section">
+                    <h4>🔍 Detected Objects</h4>
+                    <div class="result-content" id="objects"></div>
+                </div>
+
+                <div class="result-section">
+                    <h4>💭 Sentiment Analysis</h4>
+                    <div class="result-content" id="sentiment"></div>
+                </div>
+
+                <div class="result-section">
+                    <h4>❓ Question & Answer Pairs</h4>
+                    <div class="result-content" id="qaPairs"></div>
+                </div>
+
+                <button class="btn download-btn" id="downloadBtn">
+                    📥 Download Full JSON
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            AI-Powered Video Analysis Platform | Built with OpenAI APIs
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('videoFile');
+        const fileLabel = document.getElementById('fileLabel');
+        const fileName = document.getElementById('fileName');
+        const processBtn = document.getElementById('processBtn');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const stepIndicator = document.getElementById('stepIndicator');
+        const status = document.getElementById('status');
+        const results = document.getElementById('results');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        let currentResult = null;
+
+        // File upload handling
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileLabel.classList.add('has-file');
+                fileName.innerHTML = `<strong>Selected:</strong> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                
+                // Clear previous results when new file is selected
+                clearPreviousResults();
+                
+                // Show a brief "ready" status
+                showStatus('✅ New video selected - ready to process!', 'success');
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 2000);
+            }
+        });
+
+        // Drag and drop
+        fileLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileLabel.style.borderColor = '#667eea';
+        });
+
+        fileLabel.addEventListener('dragleave', () => {
+            if (!fileInput.files.length) {
+                fileLabel.style.borderColor = '#cbd5e0';
+            }
+        });
+
+        fileLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length && files[0].type === 'video/mp4') {
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Clear previous results when new file is selected
+        function clearPreviousResults() {
+            // Hide results section
+            results.style.display = 'none';
+            
+            // Clear result content
+            document.getElementById('transcript').textContent = '';
+            document.getElementById('objects').innerHTML = '';
+            document.getElementById('sentiment').innerHTML = '';
+            document.getElementById('qaPairs').innerHTML = '';
+            
+            // Hide progress and step indicator
+            progress.style.display = 'none';
+            stepIndicator.style.display = 'none';
+            status.style.display = 'none';
+            
+            // Reset progress bar
+            progressFill.style.width = '0%';
+            
+            // Clear current result
+            currentResult = null;
+            
+            // Reset button state
+            processBtn.disabled = false;
+            processBtn.textContent = '🚀 Process Video';
+            
+            console.log('Previous results cleared - ready for new video processing');
+        }
+
+        // Step definitions
+        const stepDefinitions = [
+            { icon: '📊', text: 'Analyzing video', description: 'Getting video information and duration' },
+            { icon: '🎵', text: 'Extracting audio', description: 'Converting video to audio format' },
+            { icon: '🎞️', text: 'Extracting frames', description: 'Sampling frames for object detection' },
+            { icon: '📝', text: 'Transcribing with Whisper', description: 'Converting speech to text' },
+            { icon: '🔍', text: 'Detecting objects with GPT-4 Vision', description: 'Identifying objects in each frame' },
+            { icon: '💭', text: 'Analyzing sentiment with GPT-4', description: 'Determining mood and emotional tone' },
+            { icon: '❓', text: 'Generating QA pairs with GPT-4', description: 'Creating educational questions and answers' }
+        ];
+
+        // Update step indicator with progressive display
+        function updateStepIndicator(step, message) {
+            const stepIndicator = document.getElementById('stepIndicator');
+            const currentStep = document.getElementById('currentStep');
+            const currentStepText = document.getElementById('currentStepText');
+            const stepList = document.getElementById('stepList');
+            
+            stepIndicator.classList.add('active');
+            
+            // Update current step display
+            if (stepDefinitions[step]) {
+                currentStepText.textContent = `${stepDefinitions[step].icon} ${stepDefinitions[step].text}`;
+                currentStep.classList.add('show');
+            }
+            
+            // Show the current step in the list
+            const existingItem = document.querySelector(`[data-step="${step}"]`);
+            if (!existingItem) {
+                const stepItem = document.createElement('div');
+                stepItem.className = 'step-item active';
+                stepItem.dataset.step = step;
+                stepItem.innerHTML = `
+                    <span class="step-icon">${stepDefinitions[step].icon}</span>
+                    <span class="step-text">${stepDefinitions[step].text}</span>
+                    <span class="step-status">⏳</span>
+                `;
+                stepList.appendChild(stepItem);
+                
+                // Trigger animation
+                setTimeout(() => {
+                    stepItem.classList.add('show');
+                }, 100);
+            } else {
+                // Update existing step
+                existingItem.classList.add('active');
+                const statusSpan = existingItem.querySelector('.step-status');
+                if (statusSpan) {
+                    statusSpan.textContent = '⏳';
+                }
+            }
+            
+            // Mark previous steps as completed
+            document.querySelectorAll('.step-item').forEach(item => {
+                const itemStep = parseInt(item.dataset.step);
+                if (itemStep < step) {
+                    item.classList.remove('active');
+                    item.classList.add('completed');
+                    const statusSpan = item.querySelector('.step-status');
+                    if (statusSpan) {
+                        statusSpan.textContent = '✓';
+                    }
+                }
+            });
+        }
+
+        // Complete all steps
+        function completeAllSteps() {
+            document.querySelectorAll('.step-item').forEach(item => {
+                item.classList.remove('active');
+                item.classList.add('completed');
+                const statusSpan = item.querySelector('.step-status');
+                if (statusSpan) {
+                    statusSpan.textContent = '✓';
+                }
+            });
+            
+            const currentStep = document.getElementById('currentStep');
+            currentStep.textContent = '🎉 All steps completed!';
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const apiKey = document.getElementById('apiKey').value;
+            const videoFile = fileInput.files[0];
+            
+            if (!apiKey || !videoFile) {
+                showStatus('Please provide both API key and video file', 'error');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('apiKey', apiKey);
+            formData.append('video', videoFile);
+
+            // UI updates
+            processBtn.disabled = true;
+            processBtn.textContent = '⏳ Processing...';
+            progress.style.display = 'block';
+            progressFill.style.width = '10%';
+            stepIndicator.style.display = 'block';
+            results.style.display = 'none';
+            showStatus('Starting video processing...', 'info');
+
+            let eventSource = null;
+            
+            try {
+                // Generate session ID and set up event source BEFORE processing
+                const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                // Set up event source immediately
+                eventSource = new EventSource(`/api/progress/${sessionId}`);
+                
+                eventSource.addEventListener('message', (event) => {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'progress') {
+                        progressFill.style.width = data.progress + '%';
+                        showStatus(data.message, 'info');
+                        updateStepIndicator(data.step, data.message);
+                    }
+                });
+                
+                // Add session ID to form data
+                formData.append('sessionId', sessionId);
+                
+                // Start processing
+                const response = await fetch('/api/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Processing failed');
+                }
+                
+                const result = await response.json();
+                currentResult = result;
+                
+                displayResults(result);
+                showStatus('✅ Processing completed successfully!', 'success');
+                
+                // Complete all steps
+                completeAllSteps();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                if (eventSource) {
+                    eventSource.close();
+                }
+                processBtn.disabled = false;
+                processBtn.textContent = '🚀 Process Video';
+                setTimeout(() => {
+                    progress.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 1000);
+            }
+        });
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function displayResults(data) {
+            // Handle new business schema format
+            console.log('Received data:', data); // Debug log
+            
+            // Transcript - handle both old string and new object format
+            let transcriptText = '';
+            if (typeof data.transcript === 'string') {
+                // Old format
+                transcriptText = data.transcript;
+            } else if (data.transcript && data.transcript.full_text) {
+                // New format
+                transcriptText = data.transcript.full_text;
+            } else {
+                transcriptText = 'No transcript available';
+            }
+            document.getElementById('transcript').textContent = transcriptText;
+
+            // Objects - handle both old and new format
+            let objectsHtml = 'No objects detected';
+            if (data.objects_detected && data.objects_detected.length > 0) {
+                // New format
+                objectsHtml = data.objects_detected.map(obj => `
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 4px; border-left: 3px solid #667eea;">
+                        <p style="font-weight: 600; color: #2d3748; margin-bottom: 5px;">${obj.name}</p>
+                        <p style="font-size: 0.9rem; color: #4a5568;">Appears in ${obj.appearance_percentage}% of video • Avg confidence: ${(obj.avg_confidence * 100).toFixed(1)}%</p>
+                        ${obj.frames && obj.frames.length > 0 ? `
+                            <details style="margin-top: 8px;">
+                                <summary style="cursor: pointer; color: #667eea; font-size: 0.85rem;">Show frame details (${obj.frames.length} frames)</summary>
+                                <div style="margin-top: 5px; font-size: 0.8rem; color: #718096;">
+                                    ${obj.frames.slice(0, 3).map(frame => 
+                                        `Frame ${frame.frame_id} (${frame.timestamp}s): ${frame.context}`
+                                    ).join('<br>')}
+                                    ${obj.frames.length > 3 ? `<br>... and ${obj.frames.length - 3} more frames` : ''}
+                                </div>
+                            </details>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else if (data.objects && data.objects.length > 0) {
+                // Old format fallback
+                objectsHtml = data.objects.map(obj => `<span style="display: inline-block; margin: 5px; padding: 5px 10px; background: #e6fffa; border-radius: 4px; font-size: 0.9rem;">${obj.name} (${obj.count})</span>`).join('');
+            }
+            document.getElementById('objects').innerHTML = objectsHtml;
+
+            // Sentiment - handle new format
+            const sentiment = data.sentiment || {};
+            let sentimentHtml = '';
+            if (sentiment.overall_sentiment) {
+                // New format
+                sentimentHtml = `
+                    <p><strong>Overall Sentiment:</strong> <span style="color: ${getSentimentColor(sentiment.overall_sentiment)};">${sentiment.overall_sentiment}</span></p>
+                    <p><strong>Mood Keywords:</strong> ${sentiment.mood_keywords ? sentiment.mood_keywords.map(kw => `<span style="background: #e6fffa; padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; margin-right: 5px;">${kw}</span>`).join('') : 'N/A'}</p>
+                    <p><strong>Confidence:</strong> ${(sentiment.confidence * 100).toFixed(1)}%</p>
+                    <p><strong>Summary:</strong> ${sentiment.short_summary || 'N/A'}</p>
+                `;
+            } else {
+                // Old format fallback
+                sentimentHtml = `
+                    <p><strong>Mood:</strong> ${sentiment.mood || 'N/A'}</p>
+                    <p><strong>Sentiment:</strong> ${sentiment.sentiment || 'N/A'}</p>
+                    <p><strong>Confidence:</strong> ${sentiment.confidence || 'N/A'}</p>
+                    <p><strong>Explanation:</strong> ${sentiment.explanation || 'N/A'}</p>
+                `;
+            }
+            document.getElementById('sentiment').innerHTML = sentimentHtml;
+
+            // QA Pairs - handle new format
+            let qaPairsHtml = 'No QA pairs generated';
+            if (data.qa_pairs && data.qa_pairs.length > 0) {
+                // New format
+                qaPairsHtml = data.qa_pairs.map((qa, i) => `
+                    <div style="margin-bottom: 15px; padding: 10px; background: white; border-radius: 4px; border-left: 3px solid #48bb78;">
+                        <p style="font-weight: 600; color: #2d3748; margin-bottom: 5px;">Q${i + 1}: ${qa.question}</p>
+                        <p style="color: #4a5568; margin-bottom: 5px;"><strong>A:</strong> ${qa.answer}</p>
+                        ${qa.relevantSnippets && qa.relevantSnippets.length > 0 ? `
+                            <details style="margin-top: 8px;">
+                                <summary style="cursor: pointer; color: #48bb78; font-size: 0.85rem;">Show supporting quotes (${qa.relevantSnippets.length} snippet${qa.relevantSnippets.length > 1 ? 's' : ''})</summary>
+                                <div style="margin-top: 5px; font-size: 0.8rem; color: #718096;">
+                                    ${qa.relevantSnippets.map(snippet => 
+                                        `<p style="margin: 3px 0; font-style: italic;">[Segment ${snippet.segment_id}] "${snippet.text}"</p>`
+                                    ).join('')}
+                                </div>
+                            </details>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else if (data.qaPairs && data.qaPairs.length > 0) {
+                // Old format fallback
+                qaPairsHtml = data.qaPairs.map((qa, i) => `
+                    <div style="margin-bottom: 15px; padding: 10px; background: white; border-radius: 4px;">
+                        <p style="font-weight: 600; color: #2d3748; margin-bottom: 5px;">Q${i + 1}: ${qa.question}</p>
+                        <p style="color: #4a5568; margin-bottom: 5px;"><strong>A:</strong> ${qa.answer}</p>
+                        ${qa.relevantSnippet ? `<p style="font-size: 0.85rem; color: #718096; font-style: italic;">"${qa.relevantSnippet}"</p>` : ''}
+                    </div>
+                `).join('');
+            }
+            document.getElementById('qaPairs').innerHTML = qaPairsHtml;
+
+            results.style.display = 'block';
+        }
+
+        // Helper function for sentiment colors
+        function getSentimentColor(sentiment) {
+            switch (sentiment.toLowerCase()) {
+                case 'positive': return '#38a169';
+                case 'negative': return '#e53e3e';
+                case 'neutral': return '#718096';
+                default: return '#4a5568';
+            }
+        }
+
+        // Download JSON
+        downloadBtn.addEventListener('click', () => {
+            if (!currentResult) return;
+            
+            const blob = new Blob([JSON.stringify(currentResult, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `video-analysis-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
+
