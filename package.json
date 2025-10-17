@@ -1,0 +1,45 @@
+{
+  "name": "ai-video-processor",
+  "version": "1.0.0",
+  "description": "Video analysis system using OpenAI APIs for transcription, object detection, sentiment analysis, and QA generation",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:silent": "node --experimental-vm-modules node_modules/jest/bin/jest.js --silent",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\"tests/(?!integration)\"",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration.test.js",
+    "test:debug": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
+  },
+  "keywords": [
+    "video",
+    "analysis",
+    "openai",
+    "whisper",
+    "gpt-4",
+    "vision"
+  ],
+  "author": "Tridev Rai",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "fluent-ffmpeg": "^2.1.2",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.20.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  }
+}
