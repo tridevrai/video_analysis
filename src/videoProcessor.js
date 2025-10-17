@@ -1,6 +1,16 @@
-import ffmpeg from 'fluent-ffmpeg';
+import { createRequire } from 'module';
+import ffmpegPath from 'ffmpeg-static';
+import ffprobePath from 'ffprobe-static';
 import path from 'path';
 import { ensureDir, getFilesInDir } from './utils.js';
+
+// Use createRequire to import CommonJS modules properly
+const require = createRequire(import.meta.url);
+const ffmpeg = require('fluent-ffmpeg');
+
+// Configure ffmpeg paths for static binaries
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath.path);
 
 /**
  * Extract audio from video file

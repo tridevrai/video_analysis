@@ -81,7 +81,7 @@ The system generates comprehensive JSON output with detailed video insights:
 
 - Node.js 16+ (LTS recommended)
 - OpenAI API key ([get one here](https://platform.openai.com/api-keys))
-- FFmpeg (pre-installed on CodeSandbox; for local: `brew install ffmpeg` on macOS)
+- **No FFmpeg installation needed!** - FFmpeg binaries are bundled via `ffmpeg-static` and `ffprobe-static` npm packages
 
 ### Installation
 
@@ -193,7 +193,7 @@ All modules have comprehensive unit tests:
 
 - **Node.js**: Runtime environment
 - **Express.js**: Web server with real-time progress updates
-- **FFmpeg**: Video/audio processing (via `fluent-ffmpeg`)
+- **FFmpeg**: Video/audio processing (via `fluent-ffmpeg` with bundled `ffmpeg-static` and `ffprobe-static`)
 - **OpenAI API**: AI processing
   - `whisper-1`: Audio transcription with segment-level timestamps
   - `gpt-4o`: Vision, sentiment analysis, QA generation
@@ -411,8 +411,7 @@ I used AI coding assistants (primarily Cursor/Claude) extensively throughout thi
 ### Verifying Installation
 
 The system should:
-- Install all npm dependencies automatically
-- Have FFmpeg available (pre-installed in most cloud environments)
+- Install all npm dependencies automatically (including bundled FFmpeg binaries)
 - Execute `npm start` with the run button
 - Launch beautiful web UI
 - Show rich results with expandable sections
@@ -420,7 +419,7 @@ The system should:
 
 ## Troubleshooting
 
-**FFmpeg not found**: Ensure you're using a Node.js template in CodeSandbox (FFmpeg is pre-installed)
+**FFmpeg not found or "Cannot find ffprobe" error**: Run `npm install` to install the required dependencies including `ffmpeg-static` and `ffprobe-static` packages. These packages bundle the FFmpeg binaries with the project - no system installation needed!
 
 **OpenAI API errors**: 
 - Verify API key is set correctly in environment variables
