@@ -43,19 +43,19 @@ describe('Video Processor', () => {
   });
 
   describe('Return Types', () => {
-    test('extractAudio should return a Promise', () => {
-      const result = extractAudio('./test.mp4', './output.wav').catch(() => {});
-      expect(result).toBeInstanceOf(Promise);
+    test('extractAudio should be an async function', () => {
+      // Check if function is async without calling it
+      expect(extractAudio.constructor.name).toBe('AsyncFunction');
     });
 
-    test('extractFrames should return a Promise', () => {
-      const result = extractFrames('./test.mp4', './frames', 1).catch(() => {});
-      expect(result).toBeInstanceOf(Promise);
+    test('extractFrames should be an async function', () => {
+      // Check if function is async without calling it
+      expect(extractFrames.constructor.name).toBe('AsyncFunction');
     });
 
-    test('getVideoDuration should return a Promise', () => {
-      const result = getVideoDuration('./test.mp4').catch(() => {});
-      expect(result).toBeInstanceOf(Promise);
+    test('getVideoDuration should be an async function', () => {
+      // Check if function is async without calling it
+      expect(getVideoDuration.constructor.name).toBe('AsyncFunction');
     });
   });
 });
