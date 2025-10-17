@@ -482,6 +482,28 @@
         
         let currentResult = null;
 
+        // Check server connectivity on page load
+        async function checkServerConnectivity() {
+            try {
+                const response = await fetch('/api/health', { 
+                    method: 'GET',
+                    cache: 'no-cache'
+                });
+                if (response.ok) {
+                    console.log('✅ Server is running and accessible');
+                } else {
+                    console.warn('⚠️ Server responded but with error status:', response.status);
+                    showStatus('⚠️ Server is running but may have issues. Try refreshing the page.', 'error');
+                }
+            } catch (error) {
+                console.error('❌ Cannot connect to server:', error);
+                showStatus('❌ Cannot connect to server. Please make sure the server is running and refresh the page.', 'error');
+            }
+        }
+        
+        // Run connectivity check after a short delay to let server start
+        setTimeout(checkServerConnectivity, 1000);
+
         // File upload handling
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -539,6 +561,21 @@
             
             // Reset progress bar
             progressFill.style.width = '0%';
+            
+            // Reset all step items to default state
+            document.querySelectorAll('.step-item').forEach(item => {
+                item.classList.remove('active', 'completed');
+                const statusSpan = item.querySelector('.step-status');
+                if (statusSpan) {
+                    statusSpan.textContent = '';
+                }
+            });
+            
+            // Reset current step text
+            const currentStep = document.getElementById('currentStep');
+            if (currentStep) {
+                currentStep.textContent = '';
+            }
             
             // Clear current result
             currentResult = null;
@@ -643,18 +680,20 @@
                 return;
             }
 
+            // Clear any previous results and reset UI state
+            clearPreviousResults();
+
             // Prepare form data
             const formData = new FormData();
             formData.append('apiKey', apiKey);
             formData.append('video', videoFile);
 
-            // UI updates
+            // UI updates for processing
             processBtn.disabled = true;
             processBtn.textContent = '⏳ Processing...';
             progress.style.display = 'block';
             progressFill.style.width = '10%';
             stepIndicator.style.display = 'block';
-            results.style.display = 'none';
             showStatus('Starting video processing...', 'info');
 
             let eventSource = null;
@@ -679,15 +718,27 @@
                 // Add session ID to form data
                 formData.append('sessionId', sessionId);
                 
-                // Start processing
+                // Start processing with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+                
                 const response = await fetch('/api/process', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
 
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Processing failed');
+                    let errorMessage = 'Processing failed';
+                    try {
+                        const error = await response.json();
+                        errorMessage = error.error || errorMessage;
+                    } catch {
+                        errorMessage = `Server error (${response.status}): ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
                 }
                 
                 const result = await response.json();
@@ -701,7 +752,20 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                showStatus(`❌ Error: ${error.message}`, 'error');
+                
+                // Provide helpful error messages based on error type
+                let userMessage = '';
+                if (error.name === 'AbortError') {
+                    userMessage = '⏱️ Processing timed out. Your video might be too long. Try a shorter video.';
+                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    userMessage = '🌐 Network error. Please check:\n• Is the server running?\n• Check your internet connection\n• Try refreshing the page';
+                } else if (error.message.includes('API key')) {
+                    userMessage = '🔑 API Key Error: ' + error.message;
+                } else {
+                    userMessage = `❌ Error: ${error.message}`;
+                }
+                
+                showStatus(userMessage, 'error');
             } finally {
                 if (eventSource) {
                     eventSource.close();

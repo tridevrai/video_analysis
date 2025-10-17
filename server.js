@@ -287,14 +287,15 @@ app.use((error, req, res, next) => {
   res.status(500).json({ error: error.message || 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start server - bind to 0.0.0.0 for CodeSandbox compatibility
+app.listen(PORT, '0.0.0.0', () => {
   console.log('='.repeat(60));
   console.log('🎬 AI Video Processor Server');
   console.log('='.repeat(60));
   console.log(`Server running on port ${PORT}`);
   console.log(`Open http://localhost:${PORT} in your browser`);
   console.log();
+  console.log('💡 In CodeSandbox: Use the preview URL provided by the platform');
   console.log('Ready to process videos!');
   console.log('='.repeat(60));
 });
