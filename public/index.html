@@ -504,6 +504,28 @@
         // Run connectivity check after a short delay to let server start
         setTimeout(checkServerConnectivity, 1000);
 
+        // Initialize step indicator properly
+        function initializeStepIndicator() {
+            const stepIndicator = document.getElementById('stepIndicator');
+            const currentStepText = document.getElementById('currentStepText');
+            const stepList = document.getElementById('stepList');
+            
+            // Clear any existing steps
+            if (stepList) {
+                stepList.innerHTML = '';
+            }
+            
+            // Reset current step text
+            if (currentStepText) {
+                currentStepText.textContent = 'Starting processing...';
+            }
+            
+            // Show the step indicator
+            stepIndicator.style.display = 'block';
+            
+            console.log('Step indicator initialized');
+        }
+
         // File upload handling
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -562,6 +584,15 @@
             // Reset progress bar
             progressFill.style.width = '0%';
             
+            // Clear the step list completely
+            const stepList = document.getElementById('stepList');
+            if (stepList) {
+                stepList.innerHTML = '';
+            }
+            
+            // Hide step indicator initially
+            stepIndicator.style.display = 'none';
+            
             // Reset all step items to default state
             document.querySelectorAll('.step-item').forEach(item => {
                 item.classList.remove('active', 'completed');
@@ -606,6 +637,12 @@
             const currentStep = document.getElementById('currentStep');
             const currentStepText = document.getElementById('currentStepText');
             const stepList = document.getElementById('stepList');
+            
+            // Safety checks
+            if (!stepIndicator || !currentStep || !currentStepText || !stepList) {
+                console.warn('Step indicator elements not found, skipping update');
+                return;
+            }
             
             stepIndicator.classList.add('active');
             
@@ -667,7 +704,10 @@
             });
             
             const currentStep = document.getElementById('currentStep');
-            currentStep.textContent = '🎉 All steps completed!';
+            const currentStepText = document.getElementById('currentStepText');
+            if (currentStepText) {
+                currentStepText.textContent = '🎉 All steps completed!';
+            }
         }
 
         // Form submission
@@ -695,14 +735,10 @@
             processBtn.textContent = '⏳ Processing...';
             progress.style.display = 'block';
             progressFill.style.width = '10%';
-            stepIndicator.style.display = 'block';
             showStatus('Starting video processing...', 'info');
             
-            // Initialize step indicator
-            const currentStepText = document.getElementById('currentStepText');
-            if (currentStepText) {
-                currentStepText.textContent = 'Starting processing...';
-            }
+            // Initialize step indicator properly
+            initializeStepIndicator();
 
             let eventSource = null;
             
