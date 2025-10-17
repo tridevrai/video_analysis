@@ -450,6 +450,9 @@
                 <button class="btn download-btn" id="downloadBtn">
                     📥 Download Full JSON
                 </button>
+                <button class="btn" id="copyBtn" style="background: #667eea; margin-left: 10px;">
+                    📋 Copy JSON
+                </button>
             </div>
         </div>
 
@@ -470,6 +473,7 @@
         const status = document.getElementById('status');
         const results = document.getElementById('results');
         const downloadBtn = document.getElementById('downloadBtn');
+        const copyBtn = document.getElementById('copyBtn');
         
         let currentResult = null;
 
@@ -825,17 +829,71 @@
 
         // Download JSON
         downloadBtn.addEventListener('click', () => {
-            if (!currentResult) return;
+            if (!currentResult) {
+                showStatus('No results to download yet. Please process a video first.', 'error');
+                return;
+            }
             
-            const blob = new Blob([JSON.stringify(currentResult, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `video-analysis-${Date.now()}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            try {
+                const jsonString = JSON.stringify(currentResult, null, 2);
+                const filename = `video-analysis-${Date.now()}.json`;
+                
+                // Method 1: Try using data URL (works better in sandboxed environments like CodeSandbox)
+                const dataStr = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonString);
+                const a = document.createElement('a');
+                a.href = dataStr;
+                a.download = filename;
+                a.style.display = 'none';
+                
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                }, 100);
+                
+                showStatus('✅ JSON file downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Download error:', error);
+                
+                // Fallback: Copy to clipboard
+                try {
+                    const jsonString = JSON.stringify(currentResult, null, 2);
+                    navigator.clipboard.writeText(jsonString).then(() => {
+                        showStatus('⚠️ Download failed, but JSON copied to clipboard!', 'info');
+                    });
+                } catch (clipboardError) {
+                    showStatus('❌ Download failed. Please try again or copy the JSON manually.', 'error');
+                }
+            }
+        });
+
+        // Copy JSON to clipboard
+        copyBtn.addEventListener('click', async () => {
+            if (!currentResult) {
+                showStatus('No results to copy yet. Please process a video first.', 'error');
+                return;
+            }
+            
+            try {
+                const jsonString = JSON.stringify(currentResult, null, 2);
+                await navigator.clipboard.writeText(jsonString);
+                showStatus('✅ JSON copied to clipboard!', 'success');
+                
+                // Visual feedback
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓ Copied!';
+                copyBtn.style.background = '#48bb78';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '#667eea';
+                }, 2000);
+            } catch (error) {
+                console.error('Copy error:', error);
+                showStatus('❌ Failed to copy to clipboard. Please copy manually from the results below.', 'error');
+            }
         });
     </script>
 </body>
