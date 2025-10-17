@@ -573,8 +573,10 @@
             
             // Reset current step text
             const currentStep = document.getElementById('currentStep');
-            if (currentStep) {
-                currentStep.textContent = '';
+            const currentStepText = document.getElementById('currentStepText');
+            if (currentStep && currentStepText) {
+                currentStepText.textContent = 'Starting processing...';
+                currentStep.classList.remove('show');
             }
             
             // Clear current result
@@ -695,6 +697,12 @@
             progressFill.style.width = '10%';
             stepIndicator.style.display = 'block';
             showStatus('Starting video processing...', 'info');
+            
+            // Initialize step indicator
+            const currentStepText = document.getElementById('currentStepText');
+            if (currentStepText) {
+                currentStepText.textContent = 'Starting processing...';
+            }
 
             let eventSource = null;
             
