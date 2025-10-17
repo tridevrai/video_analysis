@@ -5,6 +5,7 @@ uploads/
 output.json
 *.log
 .DS_Store
+coverage/
 
 # CLI version - only using web UI for submission
 src/index.js
