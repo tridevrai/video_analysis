@@ -10,9 +10,9 @@ dotenv.config();
  * @param {Array} segments - Optional array of transcript segments for segment_id mapping
  * @returns {Promise<Array>} Array of QA pair objects with relevantSnippets
  */
-export async function generateQAPairs(transcript, numPairs = 10, segments = null) {
+export async function generateQAPairs(transcript, numPairs = 10, segments = null, apiKey) {
   const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: apiKey || process.env.OPENAI_API_KEY
   });
 
   console.log(`Generating ${numPairs} question-answer pairs...`);
