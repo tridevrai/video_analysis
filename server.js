@@ -149,11 +149,8 @@ app.post('/api/process', upload.single('video'), async (req, res) => {
       return res.status(400).json({ error: 'Invalid OpenAI API key. Use "demo" for demo mode without API calls.' });
     }
 
-    // Set API key for this request
-    process.env.OPENAI_API_KEY = apiKey;
-
     tempVideoPath = req.file.path;
-    tmpDir = `./tmp/${Date.now()}`;
+    tmpDir = `./tmp/${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     ensureDir(tmpDir);
 
     console.log(`Processing video: ${req.file.originalname}`);
@@ -182,14 +179,14 @@ app.post('/api/process', upload.single('video'), async (req, res) => {
     // Step 3: Transcribe
     console.log('[3/6] Transcribing audio...');
     sendProgress(sessionId, 3, 'Transcribing audio with Whisper API...', 35);
-    const transcriptionData = await transcribeVideo(audioPath);
+    const transcriptionData = await transcribeVideo(audioPath, apiKey);
     console.log(`Transcript length: ${transcriptionData.full_text.length} characters`);
     sendProgress(sessionId, 3, `Transcription complete (${transcriptionData.full_text.length} characters)`, 40);
 
     // Step 3.5: Analyze segment sentiments
     console.log('[3.5/6] Analyzing segment sentiments...');
     sendProgress(sessionId, 3, 'Analyzing sentiment for each segment...', 42);
-    const segmentSentiments = await analyzeSegmentSentiments(transcriptionData.segments);
+    const segmentSentiments = await analyzeSegmentSentiments(transcriptionData.segments, apiKey);
     
     // Merge segment sentiments into transcript segments and add speaker
     const enrichedSegments = transcriptionData.segments.map(segment => {
@@ -216,19 +213,19 @@ app.post('/api/process', upload.single('video'), async (req, res) => {
     const framesToProcess = Math.ceil(framePaths.length / sampleRate);
     const fps = 1; // We extract at 1 FPS
     sendProgress(sessionId, 4, `Detecting objects in ${framesToProcess} frames with GPT-4 Vision...`, 50);
-    const objects_detected = await detectObjectsInFrames(framePaths, sampleRate, fps);
+    const objects_detected = await detectObjectsInFrames(framePaths, sampleRate, fps, apiKey);
     sendProgress(sessionId, 4, `Found ${objects_detected.length} unique objects`, 65);
 
     // Step 5: Analyze overall sentiment
     console.log('[5/6] Analyzing overall sentiment...');
     sendProgress(sessionId, 5, 'Analyzing overall sentiment and mood with GPT-4...', 75);
-    const sentiment = await analyzeSentiment(transcriptionData.full_text);
+    const sentiment = await analyzeSentiment(transcriptionData.full_text, apiKey);
     sendProgress(sessionId, 5, `Sentiment: ${sentiment.overall_sentiment}`, 85);
 
     // Step 6: Generate QA pairs
     console.log('[6/6] Generating QA pairs...');
     sendProgress(sessionId, 6, 'Generating question-answer pairs with GPT-4...', 90);
-    const qaPairs = await generateQAPairs(transcriptionData.full_text, 10, enrichedSegments);
+    const qaPairs = await generateQAPairs(transcriptionData.full_text, 10, enrichedSegments, apiKey);
     sendProgress(sessionId, 6, `Generated ${qaPairs.length} QA pairs`, 95);
 
     // Build response in new business schema format

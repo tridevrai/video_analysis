@@ -484,18 +484,33 @@
 
         // Check server connectivity on page load
         async function checkServerConnectivity() {
+            // Free hosting (e.g. Render) sleeps when idle; tell the user if waking up takes a while
+            let showedColdStartNote = false;
+            const coldStartTimer = setTimeout(() => {
+                showedColdStartNote = true;
+                showStatus('⏳ Server is waking up (free hosting cold start). This can take 30–60 seconds, please wait...', 'info');
+            }, 3000);
+
             try {
                 const response = await fetch('/api/health', { 
                     method: 'GET',
                     cache: 'no-cache'
                 });
+                clearTimeout(coldStartTimer);
                 if (response.ok) {
                     console.log('✅ Server is running and accessible');
+                    if (showedColdStartNote) {
+                        showStatus('✅ Server is ready!', 'success');
+                        setTimeout(() => {
+                            status.style.display = 'none';
+                        }, 2000);
+                    }
                 } else {
                     console.warn('⚠️ Server responded but with error status:', response.status);
                     showStatus('⚠️ Server is running but may have issues. Try refreshing the page.', 'error');
                 }
             } catch (error) {
+                clearTimeout(coldStartTimer);
                 console.error('❌ Cannot connect to server:', error);
                 showStatus('❌ Cannot connect to server. Please make sure the server is running and refresh the page.', 'error');
             }

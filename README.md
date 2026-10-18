@@ -408,6 +408,14 @@ I used AI coding assistants (primarily Cursor/Claude) extensively throughout thi
 3. **Click "Run"** - server starts automatically
 4. **Access the web UI** and start analyzing videos
 
+### Render Deployment
+
+1. **Push the repo to GitHub**
+2. **In Render, choose New → Blueprint** and select the repo (it uses `render.yaml`)
+3. **Open the `*.onrender.com` URL** and enter "demo" as the API key to verify
+
+> **Note:** On Render's free plan the service sleeps after ~15 minutes of inactivity. The first request after that takes 30–60 seconds while it wakes up (cold start); subsequent requests are fast.
+
 ### Verifying Installation
 
 The system should:

@@ -8,9 +8,9 @@ dotenv.config();
  * @param {string} transcript - Video transcript text
  * @returns {Promise<object>} Sentiment analysis with overall_sentiment, mood_keywords, confidence, and short_summary
  */
-export async function analyzeSentiment(transcript) {
+export async function analyzeSentiment(transcript, apiKey) {
   const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: apiKey || process.env.OPENAI_API_KEY
   });
 
   console.log('Starting overall sentiment analysis...');
@@ -72,9 +72,9 @@ Return ONLY the JSON object, no additional text.`;
  * @param {Array} segments - Array of transcript segments with id and text
  * @returns {Promise<Array>} Array of sentiment analysis per segment
  */
-export async function analyzeSegmentSentiments(segments) {
+export async function analyzeSegmentSentiments(segments, apiKey) {
   const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: apiKey || process.env.OPENAI_API_KEY
   });
 
   console.log(`Analyzing sentiment for ${segments.length} segments...`);

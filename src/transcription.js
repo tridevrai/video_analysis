@@ -9,9 +9,9 @@ dotenv.config();
  * @param {string} audioPath - Path to audio file
  * @returns {Promise<object>} Transcription object with full_text, language, and segments
  */
-export async function transcribeVideo(audioPath) {
+export async function transcribeVideo(audioPath, apiKey) {
   const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: apiKey || process.env.OPENAI_API_KEY
   });
 
   console.log('Starting transcription with segments...');

@@ -9,9 +9,9 @@ dotenv.config();
  * @param {string} imagePath - Path to image file
  * @returns {Promise<Array>} Array of detected objects with name, confidence, and context
  */
-export async function detectObjectsInFrame(imagePath) {
+export async function detectObjectsInFrame(imagePath, apiKey) {
   const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: apiKey || process.env.OPENAI_API_KEY
   });
 
   const base64Image = imageToBase64(imagePath);
@@ -76,7 +76,7 @@ Return ONLY the JSON object, no additional text.`;
  * @param {number} fps - Frames per second for timestamp calculation (default: 1)
  * @returns {Promise<Array>} Array of objects grouped by name with appearance_percentage, avg_confidence, and frames
  */
-export async function detectObjectsInFrames(framePaths, sampleRate = 1, fps = 1) {
+export async function detectObjectsInFrames(framePaths, sampleRate = 1, fps = 1, apiKey) {
   console.log(`Starting object detection on ${framePaths.length} frames (sampling every ${sampleRate} frame(s))...`);
 
   const detectionsByFrame = [];
@@ -92,7 +92,7 @@ export async function detectObjectsInFrames(framePaths, sampleRate = 1, fps = 1)
     
     console.log(`Processing frame ${i + 1}/${sampledFrames.length} (frame #${frameNumber})...`);
     
-    const objects = await detectObjectsInFrame(framePath);
+    const objects = await detectObjectsInFrame(framePath, apiKey);
     
     // Store per-frame detections with frame metadata
     detectionsByFrame.push({
